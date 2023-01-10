@@ -1,0 +1,93 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "TeknoDC Traffic page";
+}
+<title>@ViewData["Title"] - Packets  Charts</title>
+<h4>Live Packets Traffics (last 600 item)</h4>
+<small>Refresh 15 Seconds</small>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<style>
+
+</style>
+
+<div id="area_chart_div"></div>
+<div id="column_chart_div"></div>
+<div id="line_chart_div"></div>
+<div id="bar_chart_div"></div>
+<script type="text/javascript">
+
+    setInterval(function () {
+        google.charts.load("current", { packages: ['corechart', 'bar'] });
+        google.charts.setOnLoadCallback(LoadData);
+
+        function LoadData() {
+            $.ajax({
+                url: '/ChartData',
+                dataType: "json",
+                type: "GET",
+                error: function (xhr, status, error) {
+                    toastr.error(xhr.responseText);
+                },
+                success: function (data) {
+                    PopulationChart(data, "area-chart");
+                    // PopulationChart(data, "line-chart");
+                    //PopulationChart(data, "column-chart");
+                    //PopulationChart(data, "bar-chart");
+                    return false;
+                }
+            });
+            return false;
+        }
+
+        function PopulationChart(data, chart_type) {
+            var dataArray = [['tarih', 'tx', 'rx']];
+            $.each(data, function (i, item) {
+                dataArray.push([item.tarih, item.tx, item.rx]);
+            });
+
+            var data = google.visualization.arrayToDataTable(dataArray);
+            var options = {
+                title: 'Network Traffics Data Tx - Rx ,Last 600 ',
+                height: 640, is3D: true,
+                isStacked: true,
+                chartArea: { width: '100%' },
+                colors: ['#b0120a', '#7b1fa2', '#ffab91', '#d95f02'],
+                vAxis: { title: 'tarih' },
+                hAxis: { title: 'tx,rx' },
+
+            };
+
+            var chart;
+
+            //google.visualization.drawChart({
+            //    "containerId": "visualization_div",
+            //    "dataTable": dataTable,
+            //    "refreshInterval": 5,
+            //    "chartType": "Table",
+            //    "options": {
+            //        "alternatingRowStyle": true,
+            //        "showRowNumber": true,
+            //    }
+            switch (chart_type) {
+                case "bar-chart":
+                    chart = new google.visualization.LineChart(document.getElementById('bar_chart_div'));
+                    break;
+                case "area-chart":
+                    chart = new google.visualization.AreaChart(document.getElementById('area_chart_div'));
+                    break;
+                case "column-chart":
+                    chart = new google.visualization.BarChart(document.getElementById('column_chart_div'));
+                    break;
+                case "line-chart":
+                    chart = new google.visualization.BarChart(document.getElementById('line_chart_div'));
+                    break;
+
+            }
+
+            chart.draw(data, options);
+            return false;
+        }
+    }, 1000);
+</script>
+@*chart.draw(myData, {width: 400, height: 240, is3D: true, title: 'My Daily Activities'});*@

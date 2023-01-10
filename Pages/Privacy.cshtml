@@ -1,0 +1,119 @@
+﻿@page
+@model PrivacyModel
+@{
+    ViewData["Title"] = "TeknoDC";
+}
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<p>TeknoDC.</p>
+
+<div id="area_chart_div"></div>
+<div id="column_chart_div"></div>
+<div id="line_chart_div"></div>
+<div id="bar_chart_div"></div>
+
+<script type="text/javascript">
+    var isDrawing = false;
+    google.charts.load("current", { packages: ['corechart', 'bar'] });
+
+    google.setOnLoadCallback(LoadData);
+    setTimeout(console.log("xxx"), 13000);
+   
+
+    let i = 0;
+    while (i < 10) {
+        console.log("in Timeout" + i);
+        LoadData();
+        i++;
+        alert(i);
+        setTimeout(console.log("xxx"), 13000);
+    }
+    
+    function LoadData() {
+  
+        $.ajax({
+            url: '/ChartData',
+            dataType: "json",
+            type: "GET",
+            error: function (xhr, status, error) {
+                toastr.error(xhr.responseText);
+            },
+            success: function (data) {
+                PopulationChart(data, "bar-chart");
+            }
+        });
+
+        return false;
+    };
+
+    function PopulationChart(data, chart_type) {
+        var dataArray = [['tarih', 'tx', 'rx']];
+        $.each(data, function (i, item) {
+            dataArray.push([item.tarih, item.tx, item.rx]);
+        });
+        var data = google.visualization.arrayToDataTable(dataArray);
+        var options = {
+            title: 'Network Traffics Data Tx - Rx ,Last 600 ',
+            height: 640, is3D: true,
+            isStacked: true,
+            chartArea: { width: '100%' },
+            colors: ['#b0120a', '#7b1fa2', '#ffab91', '#d95f02'],
+            vAxis: { title: 'tarih' },
+            hAxis: { title: 'tx,rx' },
+
+        };
+        var chart;
+        chart = new google.visualization.LineChart(document.getElementById('bar_chart_div'));
+        chart.draw(data, options);
+
+    }
+</script>
+
+@*<script type="text/javascript">
+    google.load("visualization", "1", { packages: ["corechart"] });
+    google.setOnLoadCallback(drawChart);
+    function drawChart() {
+        var options = {
+            title: 'USA City Distribution',
+            width: 600,
+            height: 400,
+            bar: { groupWidth: "95%" },
+            legend: { position: "none" },
+            isStacked: true
+        };
+        $.ajax({
+            url: '/ChartData',
+            dataType: "json",
+            type: "GET",
+             error: function (xhr, status, error) {
+                toastr.error(xhr.responseText);
+            },
+            success: function (data) {
+                PopulationChart(data, "bar-chart");
+               
+            }
+           
+        });
+
+
+        function PopulationChart(data, chart_type) {
+        var dataArray = [['tarih', 'tx', 'rx']];
+        $.each(data, function (i, item) {
+            dataArray.push([item.tarih, item.tx, item.rx]);
+        });
+        var data = google.visualization.arrayToDataTable(dataArray);
+        var options = {
+            title: 'Network Traffics Data Tx - Rx ,Last 600 ',
+            height: 640, is3D: true,
+            isStacked: true,
+            chartArea: { width: '100%' },
+            colors: ['#b0120a', '#7b1fa2', '#ffab91', '#d95f02'],
+            vAxis: { title: 'tarih' },
+            hAxis: { title: 'tx,rx' },
+
+        };
+    }
+</script>
+<div id="chart" style="width: 900px; height: 500px;">
+</div>*@
